@@ -1,6 +1,7 @@
 # 4D Tic tac toe
 
 Welcome to my school project that aims at cerating a 4D Tic tac toe visualised as a graph.
+Hopefully all uses the same branch
 
 ## Getting started
 
