@@ -77,9 +77,7 @@ class Points:
                 for i in set_vec:
                     copyedVec = vec.copy()
                     copyedVec.remove(i)
-                    copyedVal = val.copy()
-                    copyedVal.append(i)
-                    permutate(copyedVec, function, copyedVal)
+                    permutate(copyedVec, function, val+[i])
         
         def getComponentValue(value):
             if value == 1:
@@ -90,6 +88,11 @@ class Points:
                 return 0
             
         def addDiagonalLines(vector):
+            if tuple(vector) in added_set:
+                return
+            if (vector[0]*-1, vector[1]*-1, vector[2]*-1, vector[3]*-1) in added_set:
+                return
+            added_set.add(tuple(vector))
             startingPoint = (getComponentValue(vector[0]), getComponentValue(vector[1]), getComponentValue(vector[2]), getComponentValue(vector[3]))
             addLines(vector, startingPoint)
 
@@ -98,7 +101,6 @@ class Points:
                 if tuple(point) in startingPointSet:
                     return
                 startingPointSet.add(tuple(point))
-                print(point)
                 function(orgVecotr, point)
                 return
             if vector[0] == 0:
@@ -123,7 +125,7 @@ class Points:
         # Hlavní diagonály tělesa
         permutate([1, 1, 1, -1], addDiagonalLines, [])
         permutate([1, 1, -1, -1], addDiagonalLines, [])
-        permutate([1, -1, -1, -1], addDiagonalLines, [])
+        #permutate([1, -1, -1, -1], addDiagonalLines, [])
         addLines([1, 1, 1, 1], (0, 0, 0, 0))
 
         # Doplňkové diagonály tělesa
