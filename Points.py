@@ -127,11 +127,11 @@ class Points:
         addLines([1, 1, 1, 1], (0, 0, 0, 0))
 
         # Doplňkové diagonály tělesa
-        permutate([1, 1, 1, 0], addSecondaryDiagonalLines, [])
-        permutate([1, 1, -1, 0], addSecondaryDiagonalLines, [])
-        permutate([1, 1, 0, 0], addSecondaryDiagonalLines, [])
-        permutate([1, -1, 0, 0], addSecondaryDiagonalLines, [])
-        permutate([1, 0, 0, 0], addSecondaryDiagonalLines, [])
+        #permutate([1, 1, 1, 0], addSecondaryDiagonalLines, [])
+        #permutate([1, 1, -1, 0], addSecondaryDiagonalLines, [])
+        #permutate([1, 1, 0, 0], addSecondaryDiagonalLines, [])
+        #permutate([1, -1, 0, 0], addSecondaryDiagonalLines, [])
+        #permutate([1, 0, 0, 0], addSecondaryDiagonalLines, [])
 
                             
         
