@@ -76,6 +76,10 @@ def multiply_matrices(a, b):
         result.append(row)
     return result
 
+def norm(vec):
+    # Returns normalized vector
+    return [vec[i][0]/sqrt(sum([vec[j][0]**2 for j in range(len(vec))])) for i in range(len(vec))]
+
 def stereographic_projection(lw, coords):
     ''' 
     creates the stereographic projection of a 4D point onto a 3D space.

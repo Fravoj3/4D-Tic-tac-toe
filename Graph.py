@@ -1,6 +1,7 @@
 from ursina import *
 
-class Points:
+class Graph:
+
     class Line:
         def __init__(self, A, B, points, distanceBetweenSpheres):
             self.pointA = A
@@ -14,7 +15,6 @@ class Points:
             thickness=0.006,  # The thickness of the line
             ),color=color.rgb(208, 208, 208))
             #self.object = Entity(model=Pipe(path=(vec1, vec2), cap_ends=False, thicknesses=((0.01, 0.01))), color=color.gray)
-
 
     class Point:
         def __init__(self, position: tuple, sphereRadius: int):
@@ -41,20 +41,20 @@ class Points:
                     self.points[i][j].append([])
                     for l in range(size):
                         position = ((i-1)*distanceBetweenSpheres, (j-1)*distanceBetweenSpheres, (k-1)*distanceBetweenSpheres, (l-1)*distanceBetweenSpheres)
-                        self.points[i][j][k].append(Points.Point(position, sphereRadius))
+                        self.points[i][j][k].append(Graph.Point(position, sphereRadius))
                         isI = i < size - 1
                         isJ = j < size - 1
                         isK = k < size - 1
                         isL = l < size - 1
                         # Nediagonální směry
                         if isI:
-                            self.lines[((i, i+1), (j, j), (k, k), (l, l))] = Points.Line((i, j, k, l), (i+1, j, k, l),self.points, distanceBetweenSpheres)
+                            self.lines[((i, i+1), (j, j), (k, k), (l, l))] = Graph.Line((i, j, k, l), (i+1, j, k, l),self.points, distanceBetweenSpheres)
                         if isJ:
-                            self.lines[((i, i), (j, j+1), (k, k), (l, l))] = Points.Line((i, j, k, l), (i, j+1, k, l),self.points, distanceBetweenSpheres)
+                            self.lines[((i, i), (j, j+1), (k, k), (l, l))] = Graph.Line((i, j, k, l), (i, j+1, k, l),self.points, distanceBetweenSpheres)
                         if isK:
-                            self.lines[((i, i), (j, j), (k, k+1), (l, l))] = Points.Line((i, j, k, l), (i, j, k+1, l),self.points, distanceBetweenSpheres)
+                            self.lines[((i, i), (j, j), (k, k+1), (l, l))] = Graph.Line((i, j, k, l), (i, j, k+1, l),self.points, distanceBetweenSpheres)
                         if isL:
-                            self.lines[((i, i), (j, j), (k, k), (l, l+1))] = Points.Line((i, j, k, l), (i, j, k, l+1),self.points, distanceBetweenSpheres)
+                            self.lines[((i, i), (j, j), (k, k), (l, l+1))] = Graph.Line((i, j, k, l), (i, j, k, l+1),self.points, distanceBetweenSpheres)
         
         # Přidání diagonálních směrů  
         added_set = set()
@@ -66,7 +66,7 @@ class Points:
             added_set.add(tuple(vector))
             for i in range(1, size):
                 newPoint = [startingPoint[0] + vector[0]*i, startingPoint[1] + vector[1]*i, startingPoint[2] + vector[2]*i, startingPoint[3] + vector[3]*i]
-                self.lines[(tuple(startingPoint), tuple(newPoint))] = Points.Line(startingPoint, newPoint, self.points, distanceBetweenSpheres)
+                self.lines[(tuple(startingPoint), tuple(newPoint))] = Graph.Line(startingPoint, newPoint, self.points, distanceBetweenSpheres)
 
         def permutate(vec, function, val: list = []):
             if len(val) == 4:
@@ -125,7 +125,6 @@ class Points:
         # Hlavní diagonály tělesa
         permutate([1, 1, 1, -1], addDiagonalLines, [])
         permutate([1, 1, -1, -1], addDiagonalLines, [])
-        #permutate([1, -1, -1, -1], addDiagonalLines, [])
         addLines([1, 1, 1, 1], (0, 0, 0, 0))
 
         # Doplňkové diagonály tělesa

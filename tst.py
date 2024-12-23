@@ -15,3 +15,5 @@ def addDiagonalLines(vector):
     print(vector)
 
 permutate([1, 1, -1, -1], addDiagonalLines, [])
+
+print(None>=10)
