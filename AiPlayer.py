@@ -314,5 +314,3 @@ if __name__ == "__main__":
             if eval == -1:
                 print("You won!")
             break
-        
-    
