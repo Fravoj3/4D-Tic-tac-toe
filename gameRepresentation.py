@@ -215,7 +215,7 @@ class Move:
 
         return winMin if minPlayer else winMax
 
-class MinMax:
+class GameRepresentation:
     def __init__(self, startingPlayer):
         self.startingPlayer = startingPlayer # 1 or 2
 
@@ -225,7 +225,7 @@ class MinMax:
     def copyBoard(self, board):
         return [[[[board[i][j][k][l].copy() for l in range(3)] for k in range(3)] for j in range(3)] for i in range(3)]
     
-    def minimax(self, move, alpha, beta, depth=None):
+    def minimax(self, move, alpha, beta, depth=None, first=True):
         move.evaluation = None
         eval = move.evaluate()
         bestMove = None
@@ -248,15 +248,17 @@ class MinMax:
                             newBoard = self.copyBoard(move.board)
                             move.setPoint((i, j, k, l), newBoard)
                             newMove = Move(newBoard, 1 if move.player == 2 else 2)
-                            e =  self.minimax(newMove, alpha, beta, depth)
+                            e =  self.minimax(newMove, alpha, beta, depth, False)
                             if move.player == 1 and (move.evaluation is None or e < move.evaluation):
                                 move.evaluation = e
-                                self.bestMove = newMove
-                                self.bestMoveCoords = (i, j, k, l)
+                                if first:
+                                    self.bestMove = newMove
+                                    self.bestMoveCoords = (i, j, k, l)
                             if move.player == 2 and (move.evaluation is None or e > move.evaluation):
                                 move.evaluation = e
-                                self.bestMove = newMove
-                                self.bestMoveCoords = (i, j, k, l)
+                                if first:
+                                    self.bestMove = newMove
+                                    self.bestMoveCoords = (i, j, k, l)
 
                             #move.children[(i, j, k, l)] = newMove
 
@@ -283,16 +285,17 @@ class MinMax:
         self.gameStartingMove = Move(self.createEmptyBoard(), self.startingPlayer)
         self.gameMove = self.gameStartingMove
     
-    def getAndMakeBestMove(self, depth):
+    def getAndMakeBestMove(self, depth=None):
         self.minimax(self.gameMove, -1, 1, depth)
         self.gameMove = self.bestMove
         return self.bestMoveCoords
     
     def makeMove(self, coords):
         self.gameMove.setPoint(coords, self.gameMove.board)
+        self.gameMove.player = 2 if self.gameMove.player == 1 else 1
 
 if __name__ == "__main__":
-    minmax = MinMax(1)
+    minmax = GameRepresentation(1)
     minmax.createNewGame()
     player = int(input("Write 1 if you want to start, 2 if you want to be second: "))
     while True:

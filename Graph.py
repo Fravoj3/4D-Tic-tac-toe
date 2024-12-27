@@ -20,7 +20,7 @@ class Graph:
         def __init__(self, position: tuple, sphereRadius: int):
             self.position = position
             self.sphereRadius = sphereRadius
-            self.object = Entity(model='sphere', color=color.orange, position=(position[0], position[1], position[2]), scale=(sphereRadius, sphereRadius, sphereRadius))
+            self.object = Entity(model='sphere', color=color.orange, position=(position[0], position[1], position[2]), scale=(sphereRadius, sphereRadius, sphereRadius), collider="sphere")
             self.PositionMatrix4d = [[position[0]], [position[1]], [position[2]], [position[3]]]
 
         def setObjectPositionByMatrix(self, matrix):
@@ -28,7 +28,7 @@ class Graph:
             self.object.y = matrix[1][0]
             self.object.z = matrix[2][0]
 
-    def __init__(self, size, distanceBetweenSpheres, sphereRadius):
+    def __init__(self, size, distanceBetweenSpheres, sphereRadius, vertexClickFunction):
         self.sphereRadius = sphereRadius
         self.distanceBetweenSpheres= distanceBetweenSpheres
         self.points = []
@@ -134,7 +134,35 @@ class Graph:
         #permutate([1, -1, 0, 0], addSecondaryDiagonalLines, [])
         #permutate([1, 0, 0, 0], addSecondaryDiagonalLines, [])
 
-                            
-        
-                       
+    def hide(self):
+        for point in self.points:
+            for point2 in point:
+                for point3 in point2:
+                    for point4 in point3:
+                        point4.object.visible = False
+        for line in self.lines.values():
+            line.object.visible = False
 
+    def show(self):
+        for point in self.points:
+            for point2 in point:
+                for point3 in point2:
+                    for point4 in point3:
+                        point4.object.visible = True
+        for line in self.lines.values():
+            line.object.visible = True        
+                       
+    def restartColors(self):
+        for point in self.points:
+            for point2 in point:
+                for point3 in point2:
+                    for point4 in point3:
+                        point4.object.color = color.orange
+        for line in self.lines.values():
+            line.object.color = color.rgb(208, 208, 208)	
+
+    def colorizePoint(self, i, j, k, l, color):
+        self.points[i][j][k][l].object.color = color
+        for line in self.lines.values():
+            if (line.pointA == (i, j, k, l) or line.pointB == (i, j, k, l)) and (self.points[line.pointA[0]][line.pointA[1]][line.pointA[2]][line.pointA[3]].object.color == color and self.points[line.pointB[0]][line.pointB[1]][line.pointB[2]][line.pointB[3]].object.color == color):
+                line.object.color = color
