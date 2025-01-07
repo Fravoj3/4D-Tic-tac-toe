@@ -106,7 +106,6 @@ class Game:
             self.currPlayerText.text = "You"
 
     def onClickOnVertex(self, i, j, k, l):
-        print(f"clicked on vertex: {i} {j} {k} {l}")
         if self.gameOver:
             return
         
