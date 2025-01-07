@@ -1,8 +1,10 @@
+import threading
 from ursina import *
 from matrix import *
 from OrbitControls import OrbitControls
 from Graph import Graph
 from gameRepresentation import GameRepresentation
+import time
 
 class Game:
     def __init__(self, sphereRadius, distanceBetweenSpheres, returnToMenuFc):
@@ -81,7 +83,6 @@ class Game:
                         for k in range(self.grid_size):
                             for l in range(self.grid_size):
                                 if mouse.hovered_entity == self.graph.points[i][j][k][l].object:
-                                    print("Clicked on vertex: ", i, j, k, l)
                                     self.onClickOnVertex(i, j, k, l)
 
     def restartGame(self):
@@ -104,6 +105,7 @@ class Game:
             self.currPlayerText.text = "You"
 
     def onClickOnVertex(self, i, j, k, l):
+        print(f"clicked on vertex: {i} {j} {k} {l}")
         if self.gameOver:
             return
         
@@ -118,6 +120,7 @@ class Game:
         self.waitingForAIMove = True
         # check if move is valid
         if self.gameRepresentation.gameMove.board[i][j][k][l].player != 0:
+            self.waitingForAIMove = False
             return
         # colorize the point
         self.graph.colorizePoint(i, j, k, l, self.color1)
@@ -140,25 +143,29 @@ class Game:
             return
 
         # Computer's turn
-        a, b, c, d = self.gameRepresentation.getAndMakeBestMove(3)
-        self.graph.colorizePoint(a, b, c, d, self.color2)
-        eval = self.gameRepresentation.gameMove.evaluate()
-        if eval == 1:
-            self.gameOver = True
-            self.currPlayerTextLabel.text = "Game over"
-            self.currPlayerText.text = "Computer won"
+        def makeCopmutersTurn(self):
+            a, b, c, d = self.gameRepresentation.getAndMakeBestMove(3)
+            self.graph.colorizePoint(a, b, c, d, self.color2)
+            eval = self.gameRepresentation.gameMove.evaluate()
+            if eval == 1:
+                self.gameOver = True
+                self.currPlayerTextLabel.text = "Game over"
+                self.currPlayerText.text = "Computer won"
+                self.showPlayAgainButton()
+                return
+            elif eval == 0:
+                self.gameOver = True
+                self.currPlayerTextLabel.text = "Game over"
+                self.currPlayerText.text = "Draw"
+                self.showPlayAgainButton()
+                return
+            self.currPlayerText.text = "You"
             self.waitingForAIMove = False
-            self.showPlayAgainButton()
-            return
-        elif eval == 0:
-            self.gameOver = True
-            self.currPlayerTextLabel.text = "Game over"
-            self.currPlayerText.text = "Draw"
-            self.waitingForAIMove = False
-            self.showPlayAgainButton()
-            return
-        self.waitingForAIMove = False
-        self.currPlayerText.text = "You"
+
+        
+        self.currPlayerText.text = "Computer's turn"
+        p1 = threading.Thread(target=makeCopmutersTurn, args=(self,))
+        p1.start()
 
     def showPlayAgainButton(self):
         self.playAgainButton.visible = True
