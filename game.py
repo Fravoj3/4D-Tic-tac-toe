@@ -90,6 +90,7 @@ class Game:
         self.multiplayer = False
         self.humanStarts = False
         self.gameOver = False
+        self.waitingForAIMove = False
         self.currentPlayer = 1
         self.gameRepresentation = GameRepresentation(1)
         self.gameRepresentation.createNewGame()
