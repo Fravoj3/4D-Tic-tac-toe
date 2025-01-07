@@ -2,7 +2,7 @@
 
 Welcome to my school project that aims at cerating a 4D Tic tac toe visualised as a graph.
 
-![](game icon.png)
+![background image](gameIcon.png)
 
 ## Getting started
 
