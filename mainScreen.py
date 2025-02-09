@@ -1,6 +1,9 @@
 from ursina import *
 
 class MainScreen:
+    '''
+    Class responsible for the main screen of the game, constructor takes two functions as arguments, which are called when the buttons are clicked.
+    '''
     def __init__(self, newMultiplayerFc, newSingleplayerFc):
         self.newMultiplayerFc = newMultiplayerFc
         self.newSingleplayerFc = newSingleplayerFc

@@ -90,6 +90,7 @@ def stereographic_projection(lw, coords):
     '''
     w = coords[3][0]
     dist = (lw-(w/3.5))
+    
     matrix = [[ 1/dist ,    0    ,    0    ,    0 ],
               [     0    , 1/dist,    0    ,    0 ],
               [     0    ,    0    , 1/dist,    0 ]]

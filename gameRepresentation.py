@@ -1,7 +1,13 @@
+'''
+File contains class GameRepresentation which is responsible for representing game state, evaluating game state and making moves using minimax algorithm.
+
+'''
+
+
 class Point:
         def __init__(self, player=None):
             if player is None:
-                self.player = 0
+                self.player = 0 # Player it belongs to
             else:
                 self.player = player
             self.neighboursOnX = 0
@@ -23,40 +29,58 @@ class Move:
         self.player = player # 1 or 2
         self.evaluation = None
         self.children = dict()
+        self.emptyPoints = 81
     
-    def evaluate(self):
+    def evaluate(self, lastCoords=None):
         '''
         Evaluates board state. Returns player who has won or -1 if no one has won.
         '''
         won = [None, False, False]
-        for i in range(3):
-            for j in range(3):
-                for k in range(3):
-                    for l in range(3):
-                        if self.board[i][j][k][l].neighboursOnX >= 3:
-                            won[self.board[i][j][k][l].player] = True
-                        if self.board[i][j][k][l].neighboursOnY >= 3:
-                            won[self.board[i][j][k][l].player] = True
-                        if self.board[i][j][k][l].neighboursOnZ >= 3:
-                            won[self.board[i][j][k][l].player] = True
-                        if self.board[i][j][k][l].neighboursOnW >= 3:
-                            won[self.board[i][j][k][l].player] = True
-                    
-        def diagonalCheck(start, shift):
+
+        def checkMainAxisPosition(i, j, k, l):
+            nonlocal won
+            if self.board[i][j][k][l].neighboursOnX >= 3:
+                won[self.board[i][j][k][l].player] = True
+            if self.board[i][j][k][l].neighboursOnY >= 3:
+                won[self.board[i][j][k][l].player] = True
+            if self.board[i][j][k][l].neighboursOnZ >= 3:
+                won[self.board[i][j][k][l].player] = True
+            if self.board[i][j][k][l].neighboursOnW >= 3:
+                won[self.board[i][j][k][l].player] = True
+
+        def checkDiagonals():
+            nonlocal won
+            def diagonalCheck(start, shift):
+                nonlocal won
+                for i in range(3):
+                    if self.board[start[0]+i*shift[0]][start[1]+i*shift[1]][start[2]+i*shift[2]][start[3]+i*shift[3]].player != self.board[start[0]][start[1]][start[2]][start[3]].player:
+                        return False
+
+                won[self.board[start[0]][start[1]][start[2]][start[3]].player] = True
+            # Diagonals check
+            diagonalCheck([0, 0, 0, 0], [1, 1, 1, 1])
+            diagonalCheck([2, 0, 0, 0], [-1, 1, 1, 1])
+            diagonalCheck([0, 2, 0, 0], [1, -1, 1, 1])
+            diagonalCheck([0, 0, 2, 0], [1, 1, -1, 1])
+            diagonalCheck([0, 0, 0, 2], [1, 1, 1, -1])
+            diagonalCheck([0, 0, 2, 2], [1, 1, -1, -1])
+            diagonalCheck([0, 2, 0, 2], [1, -1, 1, -1])
+            diagonalCheck([2, 0, 0, 2], [-1, 1, 1, -1])
+
+        if lastCoords is not None:
+            x, y, z, w = lastCoords
+            checkMainAxisPosition(x, y, z, w)
+            checkDiagonals()
+        else:
+            # Check all main axis
             for i in range(3):
-                if self.board[start[0]+i*shift[0]][start[1]+i*shift[1]][start[2]+i*shift[2]][start[3]+i*shift[3]].player != self.board[start[0]][start[1]][start[2]][start[3]].player:
-                    return False
-                
-            won[self.board[start[0]][start[1]][start[2]][start[3]].player] = True
-        # Diagonals check
-        diagonalCheck([0, 0, 0, 0], [1, 1, 1, 1])
-        diagonalCheck([2, 0, 0, 0], [-1, 1, 1, 1])
-        diagonalCheck([0, 2, 0, 0], [1, -1, 1, 1])
-        diagonalCheck([0, 0, 2, 0], [1, 1, -1, 1])
-        diagonalCheck([0, 0, 0, 2], [1, 1, 1, -1])
-        diagonalCheck([0, 0, 2, 2], [1, 1, -1, -1])
-        diagonalCheck([0, 2, 0, 2], [1, -1, 1, -1])
-        diagonalCheck([2, 0, 0, 2], [-1, 1, 1, -1])
+                for j in range(3):
+                    for k in range(3):
+                        for l in range(3):
+                            checkMainAxisPosition(i, j, k, l)
+            # chceck all diagonals
+            checkDiagonals()
+
         if won[1] and won[2]:
             return 0
         if won[1]:
@@ -71,6 +95,9 @@ class Move:
         Sets point on the board representing player's move. x, y, z, w, are coordinates of player on given board.
         returns True if player has won in axis x, y, z or w (exceot body diagonals).
         '''
+        # ---- update free space var ---
+        self.emptyPoints -= 1
+
         x, y, z, w = coords
         player = self.player
         def getNeighbourVal(x, y, z, w, dir):
@@ -225,14 +252,14 @@ class GameRepresentation:
     def copyBoard(self, board):
         return [[[[board[i][j][k][l].copy() for l in range(3)] for k in range(3)] for j in range(3)] for i in range(3)]
     
-    def minimax(self, move, alpha, beta, depth=None, first=True):
+    def minimax(self, move, alpha, beta, depth=None, first=True, lastCoords=None):
         move.evaluation = None
-        eval = move.evaluate()
+        eval = move.evaluate(lastCoords)
         bestMove = None
         if eval is not None:
             move.evaluation = eval
             if depth is not None:
-                return eval*10
+                return eval*12
             return eval
         
         if depth is not None and depth == 0:
@@ -248,7 +275,7 @@ class GameRepresentation:
                             newBoard = self.copyBoard(move.board)
                             move.setPoint((i, j, k, l), newBoard)
                             newMove = Move(newBoard, 1 if move.player == 2 else 2)
-                            e =  self.minimax(newMove, alpha, beta, depth, False)
+                            e =  self.minimax(newMove, alpha, beta, depth, False, lastCoords=(i, j, k, l))
                             if move.player == 1 and (move.evaluation is None or e < move.evaluation):
                                 move.evaluation = e
                                 if first:
@@ -276,7 +303,7 @@ class GameRepresentation:
             return 0
         return move.evaluation
     
-    def startMinMax(self):
+    def startMiniMax(self):
         move = Move(self.createEmptyBoard(), self.startingPlayer)
         self.minimax(move, -1, 1, 3)
         print(move.evaluation)

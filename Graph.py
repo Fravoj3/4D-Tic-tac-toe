@@ -18,7 +18,6 @@ class Graph:
 
     class Point:
         def __init__(self, position: tuple, sphereRadius: int):
-            self.position = position
             self.sphereRadius = sphereRadius
             self.object = Entity(model='sphere', color=color.orange, position=(position[0], position[1], position[2]), scale=(sphereRadius, sphereRadius, sphereRadius), collider="sphere")
             self.PositionMatrix4d = [[position[0]], [position[1]], [position[2]], [position[3]]]
@@ -32,7 +31,8 @@ class Graph:
         self.sphereRadius = sphereRadius
         self.distanceBetweenSpheres= distanceBetweenSpheres
         self.points = []
-        self.lines = {}
+        self.lines = []
+        # Vytvoření vrcholů a přidání nediagonálních hran
         for i in range(size):
             self.points.append([])
             for j in range(size):
@@ -48,13 +48,13 @@ class Graph:
                         isL = l < size - 1
                         # Nediagonální směry
                         if isI:
-                            self.lines[((i, i+1), (j, j), (k, k), (l, l))] = Graph.Line((i, j, k, l), (i+1, j, k, l),self.points, distanceBetweenSpheres)
+                            self.lines.append(Graph.Line((i, j, k, l), (i+1, j, k, l),self.points, distanceBetweenSpheres))
                         if isJ:
-                            self.lines[((i, i), (j, j+1), (k, k), (l, l))] = Graph.Line((i, j, k, l), (i, j+1, k, l),self.points, distanceBetweenSpheres)
+                            self.lines.append(Graph.Line((i, j, k, l), (i, j+1, k, l),self.points, distanceBetweenSpheres))
                         if isK:
-                            self.lines[((i, i), (j, j), (k, k+1), (l, l))] = Graph.Line((i, j, k, l), (i, j, k+1, l),self.points, distanceBetweenSpheres)
+                            self.lines.append(Graph.Line((i, j, k, l), (i, j, k+1, l),self.points, distanceBetweenSpheres))
                         if isL:
-                            self.lines[((i, i), (j, j), (k, k), (l, l+1))] = Graph.Line((i, j, k, l), (i, j, k, l+1),self.points, distanceBetweenSpheres)
+                            self.lines.append(Graph.Line((i, j, k, l), (i, j, k, l+1),self.points, distanceBetweenSpheres))
         
         # Přidání diagonálních směrů  
         added_set = set()
@@ -64,9 +64,11 @@ class Graph:
             if (vector[0]*-1, vector[1]*-1, vector[2]*-1, vector[3]*-1) in added_set:
                 return
             added_set.add(tuple(vector))
+            newPoint = startingPoint
             for i in range(1, size):
-                newPoint = [startingPoint[0] + vector[0]*i, startingPoint[1] + vector[1]*i, startingPoint[2] + vector[2]*i, startingPoint[3] + vector[3]*i]
-                self.lines[(tuple(startingPoint), tuple(newPoint))] = Graph.Line(startingPoint, newPoint, self.points, distanceBetweenSpheres)
+                oldPoint = tuple(newPoint)
+                newPoint = [newPoint[0] + vector[0], newPoint[1] + vector[1], newPoint[2] + vector[2], newPoint[3] + vector[3]]
+                self.lines.append(Graph.Line(oldPoint, tuple(newPoint), self.points, distanceBetweenSpheres))
 
         def permutate(vec, function, val: list = []):
             if len(val) == 4:
@@ -128,7 +130,8 @@ class Graph:
         addLines([1, 1, 1, 1], (0, 0, 0, 0))
 
         # Doplňkové diagonály tělesa
-        #permutate([1, 1, 1, 0], addSecondaryDiagonalLines, [])
+        #
+        # permutate([1, 1, 1, 0], addSecondaryDiagonalLines, [])
         #permutate([1, 1, -1, 0], addSecondaryDiagonalLines, [])
         #permutate([1, 1, 0, 0], addSecondaryDiagonalLines, [])
         #permutate([1, -1, 0, 0], addSecondaryDiagonalLines, [])
@@ -140,7 +143,7 @@ class Graph:
                 for point3 in point2:
                     for point4 in point3:
                         point4.object.visible = False
-        for line in self.lines.values():
+        for line in self.lines:
             line.object.visible = False
 
     def show(self):
@@ -149,7 +152,7 @@ class Graph:
                 for point3 in point2:
                     for point4 in point3:
                         point4.object.visible = True
-        for line in self.lines.values():
+        for line in self.lines:
             line.object.visible = True        
                        
     def restartColors(self):
@@ -158,11 +161,13 @@ class Graph:
                 for point3 in point2:
                     for point4 in point3:
                         point4.object.color = color.orange
-        for line in self.lines.values():
+        for line in self.lines:
             line.object.color = color.rgb(208, 208, 208)	
 
     def colorizePoint(self, i, j, k, l, color):
         self.points[i][j][k][l].object.color = color
-        for line in self.lines.values():
-            if (line.pointA == (i, j, k, l) or line.pointB == (i, j, k, l)) and (self.points[line.pointA[0]][line.pointA[1]][line.pointA[2]][line.pointA[3]].object.color == color and self.points[line.pointB[0]][line.pointB[1]][line.pointB[2]][line.pointB[3]].object.color == color):
+        for line in self.lines:
+            if (line.pointA == (i, j, k, l) or line.pointB == (i, j, k, l)) and \
+            (self.points[line.pointA[0]][line.pointA[1]][line.pointA[2]][line.pointA[3]].object.color == color and \
+             self.points[line.pointB[0]][line.pointB[1]][line.pointB[2]][line.pointB[3]].object.color == color):
                 line.object.color = color

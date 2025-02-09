@@ -1,8 +1,9 @@
 from ursina import *
 from matrix import *
 
-class  OrbitControls:
+class  OrbitController:
     def __init__(self):
+        # Počáteční hodnoty rotace
         self.currRotationX = 0
         self.currRotationY = 0
         self.currRotationW = 0

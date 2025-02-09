@@ -1,5 +1,6 @@
 '''
 MinMax algorithm for AI player.
+One of the first implementations of MinMax algorithm. Deprecated.
 '''
 
 class MinMax:

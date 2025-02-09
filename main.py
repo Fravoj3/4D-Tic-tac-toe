@@ -6,6 +6,7 @@ import game
     4D tic-tac-toe
     author: Franc Vojtěch
     date: 27. 12. 2024
+    
 '''
 
 # Display window with the game

@@ -1,10 +1,9 @@
 import threading
 from ursina import *
 from matrix import *
-from OrbitControls import OrbitControls
+from OrbitController import OrbitController
 from Graph import Graph
 from gameRepresentation import GameRepresentation
-import time
 
 class Game:
     def __init__(self, sphereRadius, distanceBetweenSpheres, returnToMenuFc):
@@ -14,7 +13,7 @@ class Game:
         self.returnToMenuFc = returnToMenuFc
 
         self.graph = Graph(size=self.grid_size, distanceBetweenSpheres=self.distanceBetweenSpheres, sphereRadius=self.sphereRadius, vertexClickFunction=self.onClickOnVertex)
-        self.orbitControls = OrbitControls()
+        self.orbitController = OrbitController()
         self.visible = True
         self.waitingForAIMove = False
 
@@ -27,7 +26,7 @@ class Game:
         self.returnToMenuButton = Button(text='Return to menu', scale=(0.28, 0.04), position=(-0.725, 0.31), color=color.black, visible=False, enabled=False)
 
     def update(self):
-        toatalRotationMatrix = self.orbitControls.getOrbitMatrix()
+        toatalRotationMatrix = self.orbitController.getOrbitMatrix()
 
         # Transform all points
         for i in range(self.grid_size):
@@ -38,7 +37,7 @@ class Game:
                         old_coords = point.PositionMatrix4d
                         new_coords = multiply_matrices(toatalRotationMatrix, old_coords)
                         point.setObjectPositionByMatrix(stereographic_projection(3, new_coords))
-        for line in self.graph.lines.values():
+        for line in self.graph.lines:
             idA = line.pointA
             idB = line.pointB
             vertAPos = self.graph.points[idA[0]][idA[1]][idA[2]][idA[3]].object.position
@@ -72,9 +71,9 @@ class Game:
     def input(self, key):
         # Update scroll direction based on input
         if key == 'scroll up':
-            self.orbitControls.scrollDirection = 'up'
+            self.orbitController.scrollDirection = 'up'
         elif key == 'scroll down':
-            self.orbitControls.scrollDirection = 'down'
+            self.orbitController.scrollDirection = 'down'
         
         if key == 'left mouse up':
             if mouse.hovered_entity:  # Check if a 3D object was under the mouse when released
@@ -167,22 +166,6 @@ class Game:
         p1 = threading.Thread(target=makeCopmutersTurn, args=(self,))
         p1.start()
 
-    def showPlayAgainButton(self):
-        self.playAgainButton.visible = True
-        self.playAgainButton.enabled = True
-        self.returnToMenuButton.visible = True
-        self.returnToMenuButton.enabled = True
-        self.returnToMenuButton.on_click = self.returnToMenuFc
-        def restartGame():
-            mp = self.multiplayer
-            self.restartGame()
-            self.startGame(mp, True)
-            self.playAgainButton.visible = False
-            self.playAgainButton.enabled = False
-            self.returnToMenuButton.visible = False
-            self.returnToMenuButton.enabled = False
-        self.playAgainButton.on_click = restartGame
-
     def makeMultiplayerMove(self, i, j, k, l):
         # check if move is valid
         if self.gameRepresentation.gameMove.board[i][j][k][l].player != 0:
@@ -212,3 +195,19 @@ class Game:
             self.currPlayerText.text = "Blue player wins"
         elif eval == 0:
             self.currPlayerText.text = "Draw"
+
+    def showPlayAgainButton(self):
+        self.playAgainButton.visible = True
+        self.playAgainButton.enabled = True
+        self.returnToMenuButton.visible = True
+        self.returnToMenuButton.enabled = True
+        self.returnToMenuButton.on_click = self.returnToMenuFc
+        def restartGame():
+            mp = self.multiplayer
+            self.restartGame()
+            self.startGame(mp, True)
+            self.playAgainButton.visible = False
+            self.playAgainButton.enabled = False
+            self.returnToMenuButton.visible = False
+            self.returnToMenuButton.enabled = False
+        self.playAgainButton.on_click = restartGame
